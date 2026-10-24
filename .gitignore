@@ -1,0 +1,19 @@
+# Estado local de Obsidian (cambia en cada ordenador)
+.obsidian/workspace*.json
+.obsidian/cache
+.trash/
+
+# Estado local de Claude Code
+.claude/settings.local.json
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Nunca credenciales
+.env
+.env.*
+*.key
+*.pem
+scripts/.sync.log
