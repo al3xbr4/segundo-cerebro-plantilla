@@ -1,6 +1,6 @@
 # Instalar el segundo cerebro en otro ordenador
 
-Copia el prompt de tu sistema, cambia `<PLANTILLA>` por `al3xbr4/segundo-cerebro-plantilla` (o por la que te hayan pasado) y pégalo en **Claude Code**. Claude hará la instalación y te pedirá permiso para cada paso.
+Copia el prompt de tu sistema y pégalo tal cual en **Claude Code**. Claude hará la instalación y te pedirá permiso para cada paso.
 
 Requisito previo: tener Claude Code instalado y una cuenta de GitHub.
 
@@ -13,7 +13,7 @@ Cada persona crea **su propio repositorio privado** a partir de esta plantilla. 
 ```text
 Monta mi segundo cerebro en este ordenador Windows. Hazlo paso a paso y verifica cada cosa:
 
-1. Si no tengo gh, instálalo con `winget install -e --id GitHub.cli` y pídeme que haga `gh auth login`. Después crea mi propio repositorio PRIVADO a partir de la plantilla y clónalo en %USERPROFILE%\Documents\SegundoCerebro: `gh repo create segundo-cerebro --private --template <PLANTILLA> --clone` desde %USERPROFILE%\Documents y renombra la carpeta a SegundoCerebro. Comprueba con `gh repo view --json visibility` que es PRIVATE.
+1. Si no tengo gh, instálalo con `winget install -e --id GitHub.cli` y pídeme que haga `gh auth login`. Después crea mi propio repositorio PRIVADO a partir de la plantilla y clónalo en %USERPROFILE%\Documents\SegundoCerebro: `gh repo create segundo-cerebro --private --template al3xbr4/segundo-cerebro-plantilla --clone` desde %USERPROFILE%\Documents y renombra la carpeta a SegundoCerebro. Comprueba con `gh repo view --json visibility` que es PRIVATE.
 2. Comprueba que tengo Node.js (npx), Python 3.10+ y git. Lo que falte, instálalo con winget (OpenJS.NodeJS.LTS, Python.Python.3.12, Git.Git).
 3. Instala uv con `python -m pip install uv`.
 4. Graphify: `python -m uv tool install graphifyy` y después `%USERPROFILE%\.local\bin\graphify install --platform claude`.
@@ -40,7 +40,7 @@ Monta mi segundo cerebro en este Mac. Hazlo paso a paso y verifica cada cosa:
 
 1. Si no tengo Homebrew, dime cómo instalarlo (https://brew.sh) y espera a que lo haga.
 2. Instala lo básico: `brew install git gh node python uv ffmpeg yt-dlp` y `brew install --cask obsidian`.
-3. Si gh no tiene sesión, pídeme que haga `gh auth login`. Después crea mi propio repositorio PRIVADO a partir de la plantilla y clónalo en ~/Documents/SegundoCerebro: `gh repo create segundo-cerebro --private --template <PLANTILLA> --clone` desde ~/Documents y renombra la carpeta a SegundoCerebro. Comprueba con `gh repo view --json visibility` que es PRIVATE.
+3. Si gh no tiene sesión, pídeme que haga `gh auth login`. Después crea mi propio repositorio PRIVADO a partir de la plantilla y clónalo en ~/Documents/SegundoCerebro: `gh repo create segundo-cerebro --private --template al3xbr4/segundo-cerebro-plantilla --clone` desde ~/Documents y renombra la carpeta a SegundoCerebro. Comprueba con `gh repo view --json visibility` que es PRIVATE.
 4. Graphify: `uv tool install graphifyy`, `uv tool update-shell` y `graphify install --platform claude`.
 5. Skills: `npx -y skills add vercel-labs/skills@find-skills -g -a claude-code -y` y `npx -y skills add coreyhaines31/makerskills@watch-video -g -a claude-code -y`.
 6. Transcripción local: crea un entorno con `uv venv ~/.venvs/whisper` e instala en él `faster-whisper "av==18.0.0"`. Si el Mac es Apple Silicon (M1/M2/M3/M4), instala también `mlx-whisper`, que es el que usa watch-video en esos Mac. Dime qué ruta de Python tiene que usar la skill.
