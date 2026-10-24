@@ -25,8 +25,9 @@ Monta mi segundo cerebro en este ordenador Windows. Hazlo paso a paso y verifica
    - Añade al final de %USERPROFILE%\.claude\CLAUDE.md (créalo si no existe) estas dos líneas: `# Segundo cerebro` y `@~/Documents/SegundoCerebro/claude-global/REGLAS.md`.
    - Fusiona los hooks de claude-global/hooks.json de la bóveda en %USERPROFILE%\.claude\settings.json SIN borrar lo que ya haya.
    - Prueba `bash scripts/sync.sh pull` en la bóveda y revisa scripts/.sync.log.
-10. Comprueba que funciona: `graphify --help`, `yt-dlp --version`, `ffmpeg -version` y `python -c "import faster_whisper"`.
-11. Lee el CLAUDE.md de la bóveda y dime en qué estado está y qué hay en raw/ sin procesar.
+10. Historial: en %USERPROFILE%\.claude\settings.json pon `"cleanupPeriodDays": 365` (sin borrar lo demás) para que no se pierdan conversaciones. Después, desde la bóveda, ejecuta la skill /importar-historial para meter en raw/ lo importante de mis conversaciones antiguas de este ordenador. Antes de resumir, enséñame cuántas hay por proyecto y pregúntame si las quiero todas.
+11. Comprueba que funciona: `graphify --help`, `yt-dlp --version`, `ffmpeg -version` y `python -c "import faster_whisper"`.
+12. Lee el CLAUDE.md de la bóveda y dime en qué estado está y qué hay en raw/ sin procesar.
 
 Al acabar, recuérdame que reinicie Claude Code para que cargue las skills nuevas.
 ```
@@ -49,8 +50,9 @@ Monta mi segundo cerebro en este Mac. Hazlo paso a paso y verifica cada cosa:
    - Añade al final de ~/.claude/CLAUDE.md (créalo si no existe) estas dos líneas: `# Segundo cerebro` y `@~/Documents/SegundoCerebro/claude-global/REGLAS.md`.
    - Fusiona los hooks de claude-global/hooks.json de la bóveda en ~/.claude/settings.json SIN borrar lo que ya haya.
    - Prueba `bash scripts/sync.sh pull` en la bóveda y revisa scripts/.sync.log.
-9. Comprueba que funciona: `graphify --help`, `yt-dlp --version`, `ffmpeg -version` y que el entorno importa faster_whisper.
-10. Lee el CLAUDE.md de la bóveda y dime en qué estado está y qué hay en raw/ sin procesar.
+9. Historial: en ~/.claude/settings.json pon `"cleanupPeriodDays": 365` (sin borrar lo demás) para que no se pierdan conversaciones. Después, desde la bóveda, ejecuta la skill /importar-historial para meter en raw/ lo importante de mis conversaciones antiguas de este ordenador. Antes de resumir, enséñame cuántas hay por proyecto y pregúntame si las quiero todas.
+10. Comprueba que funciona: `graphify --help`, `yt-dlp --version`, `ffmpeg -version` y que el entorno importa faster_whisper.
+11. Lee el CLAUDE.md de la bóveda y dime en qué estado está y qué hay en raw/ sin procesar.
 
 Al acabar, recuérdame que reinicie Claude Code para que cargue las skills nuevas.
 ```
@@ -76,3 +78,7 @@ Para indexar un proyecto de código y volcarlo en la bóveda, ejecuta dentro del
 1. Abre Claude Code en la carpeta de la bóveda.
 2. Mete material en `raw/` (notas, PDFs, transcripciones con `/watch-video <url>`) y di «procesa raw».
 3. Para el cerebro de empresa, empieza por `empresa/Elegir camino.md` y `empresa/Matriz de permisos.md`.
+
+## Aprovechar conversaciones antiguas
+
+En cualquier ordenador, abre Claude Code en la bóveda y di **/importar-historial**. Lee las conversaciones de Claude Code de ese ordenador, tapa claves y tokens, y deja en `raw/` notas por proyecto y tema con decisiones, problemas resueltos y pendientes. Las ya importadas no se repiten. También acepta el export de claude.ai (Ajustes → Privacidad → Exportar datos → `conversations.json`).
