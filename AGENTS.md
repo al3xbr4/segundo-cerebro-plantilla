@@ -25,7 +25,10 @@ Este directorio es una bóveda de Obsidian. Abre aquí tu agente (Codex, Claude 
 ## Procedimientos
 
 ### «Procesa raw»
-- Busca en `raw/` las notas sin `procesado: true`.
+- **Documentos primero.** Por cada archivo de `raw/` que no sea `.md` (PDF, Word, PowerPoint, Excel, imágenes, texto…) y que no tenga al lado su ficha `<archivo>.md`:
+  - Saca el texto con `python scripts/extraer_texto.py "raw/<archivo>"`. Si no da texto (imagen, PDF escaneado o sin pypdf), míralo directamente.
+  - Crea la ficha `raw/<archivo>.md` (p. ej. `raw/oferta.pdf.md`) con el frontmatter de fuente (`tipo: fuente`, `origen: documento`, `procesado: false`), una línea `Documento: [[<archivo>]]` y un resumen: de qué trata, datos clave (cifras, fechas, nombres, decisiones) y para qué sirve. El documento original no se toca.
+- Busca en `raw/` las notas sin `procesado: true`, incluidas esas fichas.
 - Extrae cada concepto, persona, proyecto o herramienta a su propia nota en `wiki/` (nombre en singular, Título Con Mayúsculas). Si ya existe, añade la información nueva en lugar de duplicarla.
 - Enlaza con `[[wikilinks]]` y cita la fuente en el frontmatter: `fuentes: ["[[raw/nombre]]"]`.
 - Marca la nota de `raw/` como `procesado: true` y actualiza `wiki/Inicio.md`.

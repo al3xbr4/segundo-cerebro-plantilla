@@ -25,6 +25,7 @@
 | ⏰ **Rutina diaria** | Actualiza los grafos, importa conversaciones nuevas y ordena las notas, sin que hagas nada. |
 | 📜 **Aprovecha tu historial** | `/importar-historial` convierte tus conversaciones antiguas en notas útiles. |
 | 🕸️ **Proyectos de código en grafo** | Graphify indexa tu código para que el agente no lo relea entero cada vez, con un visor interactivo. |
+| 📄 **Mete documentos** | Suelta PDF, Word, PowerPoint, Excel o imágenes en `raw/`: la IA les hace una ficha con el resumen y los enlaza en la wiki. |
 | 🎬 **Ve vídeos** | `/watch-video` transcribe YouTube, Instagram, TikTok o archivos locales. |
 | 🏢 **Kit de cerebro de empresa** | Matriz de permisos, fichas por persona, subagentes por área y un plan de 4 semanas. |
 

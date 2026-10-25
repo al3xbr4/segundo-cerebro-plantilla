@@ -40,14 +40,15 @@ AGENTE=$(tr -d '[:space:]' < scripts/agente.local 2>/dev/null)
 [ -z "$AGENTE" ] && { command -v claude >/dev/null && AGENTE=claude || { command -v codex >/dev/null && AGENTE=codex; }; }
 PROMPT='Rutina automática del segundo cerebro. No hay nadie delante: no hagas preguntas y no escribas ninguna nota sobre esta rutina. Sigue el AGENTS.md de esta bóveda.
 1. Ejecuta `python scripts/extraer_historial.py --dias 14 --max-tokens 250000`. Si hay fichas nuevas, resúmelas en raw/ con el procedimiento «Importa mi historial» y después ejecuta `python scripts/extraer_historial.py --marcar`.
-2. Procesa raw: pasa a wiki/ las notas de raw/ que no tengan procesado: true, con el procedimiento «Procesa raw».
+2. Procesa raw: con el procedimiento «Procesa raw» de AGENTS.md, crea primero las fichas de los documentos nuevos de raw/ (PDF, Word…) y después pasa a wiki/ todo lo que no tenga procesado: true.
 3. No modifiques nada fuera de esta carpeta y no ejecutes git.
 Termina con un resumen de 5 líneas como máximo.'
 case "$AGENTE" in
   claude)
     claude -p "$PROMPT" --permission-mode acceptEdits \
       --allowedTools "Read" "Write" "Edit" "Glob" "Grep" "Agent" \
-      "Bash(python scripts/extraer_historial.py:*)" "Bash(python3 scripts/extraer_historial.py:*)" ;;
+      "Bash(python scripts/extraer_historial.py:*)" "Bash(python3 scripts/extraer_historial.py:*)" \
+      "Bash(python scripts/extraer_texto.py:*)" "Bash(python3 scripts/extraer_texto.py:*)" ;;
   codex)
     codex exec --full-auto -C "$VAULT" "$PROMPT" ;;
   *)
