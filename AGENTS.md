@@ -42,6 +42,9 @@ Este directorio es una bóveda de Obsidian. Abre aquí tu agente (Codex, Claude 
 2. Lee las fichas y escribe en `raw/` **una nota por proyecto y tema**, no una por conversación (`raw/AAAA-MM-DD <proyecto> - <tema>.md`): qué se hizo, decisiones y por qué, problemas y su causa, datos del proyecto, preferencias del usuario y pendientes. Ignora lo trivial y no reconstruyas nada marcado `[CLAVE]`, `[TOKEN]` u `[OCULTO]`.
 3. `python scripts/extraer_historial.py --marcar` para no repetirlas la próxima vez.
 
+### «Recoge los documentos de mis conversaciones»
+`python scripts/recoger_documentos.py` lista los PDF, Word, Excel y PowerPoint que se han mencionado en las conversaciones de Claude Code y Codex de este ordenador y que aún existen; con `--copiar` los copia a `raw/documentos/` (los originales no se tocan). Después, «Procesa raw». La rutina diaria lo hace sola.
+
 ### Indexar un proyecto de código
 Dentro del proyecto: `/graphify . --obsidian --obsidian-dir <bóveda>/proyectos/<Nombre>` (o `graphify` desde la terminal), y después `python <bóveda>/scripts/visor_grafo.py graphify-out` para generar `grafo.html`, el visor del grafo. Tras cada cambio de código: `/graphify . --update` y vuelve a generar el visor.
 

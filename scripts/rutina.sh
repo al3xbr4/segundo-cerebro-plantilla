@@ -35,6 +35,9 @@ if [ -f scripts/proyectos.local ]; then
   done < scripts/proyectos.local
 fi
 
+# Documentos mencionados en las conversaciones (PDF, Word…) que aún existan: copia a raw/documentos/
+"$PY" scripts/recoger_documentos.py --copiar
+
 # 3. Historial nuevo + procesar raw, con el agente en modo no interactivo
 AGENTE=$(tr -d '[:space:]' < scripts/agente.local 2>/dev/null)
 [ -z "$AGENTE" ] && { command -v claude >/dev/null && AGENTE=claude || { command -v codex >/dev/null && AGENTE=codex; }; }
