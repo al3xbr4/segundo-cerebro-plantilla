@@ -28,10 +28,32 @@ Este directorio es una bóveda de Obsidian. Abre aquí tu agente (Codex, Claude 
 - **Documentos primero.** Por cada archivo de `raw/` que no sea `.md` (PDF, Word, PowerPoint, Excel, imágenes, texto…) y que no tenga al lado su ficha `<archivo>.md`:
   - Saca el texto con `python scripts/extraer_texto.py "raw/<archivo>"`. Si no da texto (imagen, PDF escaneado o sin pypdf), míralo directamente.
   - Crea la ficha `raw/<archivo>.md` (p. ej. `raw/oferta.pdf.md`) con el frontmatter de fuente (`tipo: fuente`, `origen: documento`, `procesado: false`), una línea `Documento: [[<archivo>]]` y un resumen: de qué trata, datos clave (cifras, fechas, nombres, decisiones) y para qué sirve. El documento original no se toca.
+  - Si es un **documento administrativo** (contrato, seguro, alquiler, factura, presupuesto, licencia, certificado, garantía, póliza, escritura, nómina, impuesto…), añade al frontmatter los campos administrativos (ver «Documentos administrativos»).
 - Busca en `raw/` las notas sin `procesado: true`, incluidas esas fichas.
+- Las fichas administrativas, además, enlázalas a la nota de wiki de su contraparte (aseguradora, arrendador, proveedor, cliente…) y al final ejecuta `python scripts/vencimientos.py`.
 - Extrae cada concepto, persona, proyecto o herramienta a su propia nota en `wiki/` (nombre en singular, Título Con Mayúsculas). Si ya existe, añade la información nueva en lugar de duplicarla.
 - Enlaza con `[[wikilinks]]` y cita la fuente en el frontmatter: `fuentes: ["[[raw/nombre]]"]`.
 - Marca la nota de `raw/` como `procesado: true` y actualiza `wiki/Inicio.md`.
+
+### Documentos administrativos (personales y de empresa)
+Campos que se añaden al frontmatter de la ficha. Deja vacío lo que el documento no diga y **no te inventes fechas**:
+
+```yaml
+categoria: contrato | seguro | alquiler | factura | presupuesto | licencia | certificado | garantia | impuesto | nomina | escritura | otro
+ambito: personal | empresa
+area: <solo empresa: finanzas, personas, operaciones, ventas, direccion…>
+contraparte: <aseguradora, arrendador, proveedor, cliente, organismo>
+referencia: <nº de póliza, contrato o factura>
+importe: <cifra y periodicidad, p. ej. "1.240 €/año">
+inicio: AAAA-MM-DD
+vence: AAAA-MM-DD
+renovacion: automatica | manual | no
+preaviso_dias: <días de antelación para cancelar o renovar>
+```
+
+- `python scripts/vencimientos.py` regenera `wiki/Vencimientos.md` con todo lo que vence, ordenado, y marca lo vencido, lo que vence en 30 o 90 días y la fecha límite de preaviso. La rutina lo ejecuta cada día.
+- **Preguntas tipo «¿cuándo vence el seguro?», «¿cuánto pagamos de alquiler?», «¿qué contratos renuevan este trimestre?»:** responde desde `wiki/Vencimientos.md` y las fichas, citando el documento (`[[archivo]]`). Si dos documentos se contradicen, dilo y usa el más reciente.
+- Datos de cuentas bancarias, DNI o firmas: no se copian a la ficha (sí que existen y en qué documento están).
 
 ### «Investiga / hazme un documento sobre…»
 - Mira primero qué hay en `wiki/` y `raw/`. Solo si falta algo, busca fuera y cita las fuentes.

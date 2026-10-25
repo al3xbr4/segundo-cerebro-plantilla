@@ -58,6 +58,9 @@ case "$AGENTE" in
     echo "agente: no encuentro claude ni codex; me salto el historial y raw/" ;;
 esac
 
+# Vencimientos de documentos administrativos (wiki/Vencimientos.md)
+"$PY" scripts/vencimientos.py
+
 # 4. Visor del cerebro entero (cerebro.html); el título se puede poner en scripts/titulo.local
 TITULO=$(tr -d '\r' < scripts/titulo.local 2>/dev/null); "$PY" scripts/visor_boveda.py --con-raw --titulo "${TITULO:-Segundo cerebro}"
 

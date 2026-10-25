@@ -4,6 +4,7 @@ El usuario tiene una bóveda de Obsidian en `~/Documents/SegundoCerebro` (en Win
 
 ## Consultar
 - Antes de empezar una tarea sobre un proyecto, cliente o tema, mira si hay algo en `wiki/` de la bóveda (empieza por `wiki/Inicio.md`). Úsalo como contexto sin anunciarlo.
+- Preguntas administrativas (vencimientos, seguros, contratos, alquileres, licencias, importes): responde desde `wiki/Vencimientos.md` y las fichas de `raw/documentos/`, citando el documento.
 - Si existe `proyectos/<Proyecto>/` en la bóveda o el proyecto tiene `graphify-out/graph.json`, consulta el grafo antes de leer muchos archivos.
 
 ## Guardar
