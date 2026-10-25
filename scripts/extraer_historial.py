@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Extrae las conversaciones antiguas de Claude Code de este ordenador a texto
-limpio, para que la skill /importar-historial las resuma en raw/ de la bóveda.
+"""Extrae las conversaciones antiguas de Claude Code y de Codex de este ordenador
+a texto limpio, para resumirlas después en raw/ de la bóveda.
 
-Lee ~/.claude/projects/<proyecto>/<sesion>.jsonl y escribe una ficha .md por
-conversación en una carpeta temporal FUERA de la bóveda (no se sube a GitHub).
-Solo guarda lo que dijeron el usuario y Claude: ni salidas de herramientas, ni
-razonamiento interno, ni avisos del sistema. Tapa claves y tokens.
+Lee ~/.claude/projects/<proyecto>/<sesion>.jsonl y ~/.codex/sessions/**/*.jsonl,
+y escribe una ficha .md por conversación en una carpeta temporal FUERA de la
+bóveda (no se sube a GitHub). Solo guarda lo que dijeron el usuario y el agente:
+ni salidas de herramientas, ni razonamiento interno, ni avisos del sistema.
+Tapa claves y tokens.
 
 Uso:
   python extraer_historial.py              # todas las pendientes
@@ -18,6 +19,8 @@ from pathlib import Path
 
 VAULT = Path(os.environ.get("SEGUNDO_CEREBRO", Path.home() / "Documents" / "SegundoCerebro"))
 PROJECTS = Path(os.environ.get("CLAUDE_CONFIG_DIR", Path.home() / ".claude")) / "projects"
+CODEX = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")) / "sessions"
+CODEX_RUIDO = ("<environment_context>", "<user_instructions>", "<permissions", "# AGENTS.md", "<INSTRUCTIONS>")
 OUT = Path.home() / ".cache" / "segundo-cerebro" / "historial"
 ESTADO = VAULT / "scripts" / "historial_importado.json"
 MAX_MSG = 1500          # caracteres por mensaje
@@ -77,6 +80,36 @@ def leer_sesion(ruta):
             if t:
                 msgs.append(("Usuario" if d["type"] == "user" else "Claude", t))
     return titulo, cwd, inicio, fin, msgs
+
+
+def leer_sesion_codex(ruta):
+    """Formato de Codex: líneas con type session_meta / response_item (o los objetos sueltos de versiones antiguas)."""
+    titulo, cwd, inicio, fin, msgs, sid = None, None, None, None, [], None
+    for linea in ruta.open(encoding="utf-8", errors="replace"):
+        try:
+            d = json.loads(linea)
+        except ValueError:
+            continue
+        p = d.get("payload") if isinstance(d.get("payload"), dict) else d
+        if d.get("type") == "session_meta" or ("instructions" in d and "id" in d):
+            sid = sid or p.get("id")
+            cwd = cwd or p.get("cwd")
+            inicio = inicio or p.get("timestamp") or d.get("timestamp")
+            continue
+        cwd = cwd or p.get("cwd")
+        if p.get("type") != "message" or p.get("role") not in ("user", "assistant"):
+            continue
+        fin = d.get("timestamp") or fin
+        for b in p.get("content") or []:
+            t = b.get("text", "") if isinstance(b, dict) else ""
+            if p["role"] == "user" and t.lstrip().startswith(CODEX_RUIDO):
+                continue
+            t = limpiar(t)
+            if t:
+                msgs.append(("Usuario" if p["role"] == "user" else "Codex", t))
+    if msgs and not titulo:
+        titulo = next((t for q, t in msgs if q == "Usuario"), "")[:70]
+    return sid or ruta.stem, titulo, cwd, inicio, fin, msgs
 
 
 def ficha(sid, titulo, cwd, inicio, fin, msgs, origen):
@@ -144,6 +177,18 @@ def main():
             if cwd and Path(cwd).resolve() == VAULT.resolve():
                 continue  # las conversaciones dentro de la bóveda ya están en ella
             proyecto, texto = ficha(sid, titulo, cwd, inicio, fin, msgs, "claude-code")
+            escritas.append((sid, proyecto, texto, inicio or ""))
+        for ruta in sorted(CODEX.rglob("*.jsonl")) if CODEX.exists() else []:
+            mtime = ruta.stat().st_mtime
+            if mtime < limite or mtime > reciente:
+                continue
+            sid, titulo, cwd, inicio, fin, msgs = leer_sesion_codex(ruta)
+            sid = "codex-" + str(sid)
+            if sid in hechas or sum(q == "Usuario" for q, _ in msgs) < MIN_USUARIO:
+                continue
+            if cwd and Path(cwd).resolve() == VAULT.resolve():
+                continue
+            proyecto, texto = ficha(sid, titulo, cwd, inicio, fin, msgs, "codex")
             escritas.append((sid, proyecto, texto, inicio or ""))
 
     for sid, proyecto, texto, inicio in escritas:

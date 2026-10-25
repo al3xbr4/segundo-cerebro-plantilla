@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITULO__ · Grafo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/force-graph@1.43.5/dist/force-graph.min.js"></script>
+<style>
+  :root {
+    --bg: #0b0d12; --bg-2: #11141b; --panel: rgba(20, 23, 31, .82); --panel-solid: #14171f;
+    --line: rgba(255, 255, 255, .08); --line-2: rgba(255, 255, 255, .14);
+    --text: #e9ecf2; --text-2: #a3abbb; --text-3: #6b7385;
+    --accent: #8b9cff; --ok: #4ade80; --warn: #fbbf24; --bad: #f87171;
+    --chip: rgba(255, 255, 255, .06); --shadow: 0 20px 60px rgba(0, 0, 0, .45);
+    --glow: rgba(139, 156, 255, .18);
+  }
+  :root[data-theme="light"] {
+    --bg: #f5f6f9; --bg-2: #eceff4; --panel: rgba(255, 255, 255, .86); --panel-solid: #ffffff;
+    --line: rgba(15, 20, 30, .08); --line-2: rgba(15, 20, 30, .14);
+    --text: #141821; --text-2: #4a5263; --text-3: #8a92a3;
+    --accent: #4f5bd5; --chip: rgba(15, 20, 30, .05); --shadow: 0 20px 50px rgba(20, 30, 50, .12);
+    --glow: rgba(79, 91, 213, .12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(1200px 800px at 70% 20%, var(--glow), transparent 60%), var(--bg);
+    color: var(--text); font: 14px/1.45 Manrope, system-ui, sans-serif; overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  #grafo { position: fixed; inset: 0; }
+  .panel {
+    position: fixed; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: var(--shadow);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; }
+
+  /* Cabecera */
+  #cabecera { top: 16px; left: 16px; width: 330px; padding: 18px 18px 14px; }
+  #cabecera .marca { display: flex; align-items: center; gap: 10px; color: var(--text-3); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+  #cabecera .marca .punto { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+  #cabecera h1 { font-size: 24px; font-weight: 800; letter-spacing: -.02em; margin: 6px 0 12px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat { background: var(--chip); border-radius: 10px; padding: 8px 10px; }
+  .stat b { display: block; font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+  .stat span { color: var(--text-3); font-size: 11px; }
+
+  /* Buscador */
+  #buscar-wrap { position: relative; margin-top: 14px; }
+  #buscar {
+    width: 100%; padding: 10px 12px 10px 36px; border-radius: 10px; border: 1px solid var(--line-2);
+    background: var(--bg-2); color: var(--text); font: inherit; outline: none; transition: border-color .15s;
+  }
+  #buscar:focus { border-color: var(--accent); }
+  #buscar-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-3); }
+  #resultados { margin-top: 6px; max-height: 220px; overflow: auto; }
+  .resultado { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 8px; cursor: pointer; }
+  .resultado:hover { background: var(--chip); }
+
+  /* Comunidades */
+  #comunidades { top: 16px; left: 16px; width: 330px; bottom: 16px; padding: 14px 10px 10px 14px; display: flex; flex-direction: column; }
+  .titulo-sec { display: flex; justify-content: space-between; align-items: center; color: var(--text-3); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin: 2px 4px 8px 0; }
+  .titulo-sec button { background: none; border: 0; color: var(--accent); font: 600 12px Manrope, sans-serif; letter-spacing: 0; text-transform: none; cursor: pointer; }
+  #lista-com { overflow: auto; padding-right: 4px; }
+  .com { display: flex; align-items: center; gap: 10px; padding: 8px 8px; border-radius: 10px; cursor: pointer; transition: background .12s; }
+  .com:hover { background: var(--chip); }
+  .com.activa { background: var(--chip); outline: 1px solid var(--line-2); }
+  .com .bola { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .com .nombre { flex: 1; font-weight: 600; font-size: 13px; }
+  .com .num { color: var(--text-3); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+  /* Filtros */
+  .filtros { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+  .filtro {
+    border: 1px solid var(--line-2); background: transparent; color: var(--text-2); border-radius: 999px;
+    padding: 4px 10px; font: 600 12px Manrope, sans-serif; cursor: pointer; transition: all .12s;
+  }
+  .filtro.on { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+  /* Ficha del nodo */
+  #ficha { top: 16px; right: 16px; width: 360px; max-height: calc(100% - 32px); overflow: auto; padding: 20px; transform: translateX(calc(100% + 32px)); transition: transform .28s cubic-bezier(.2, .8, .2, 1); }
+  #ficha.abierta { transform: none; }
+  #ficha .cerrar { position: absolute; top: 14px; right: 14px; width: 28px; height: 28px; border-radius: 8px; border: 0; background: var(--chip); color: var(--text-2); cursor: pointer; font-size: 16px; }
+  #ficha .tipo { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); }
+  #ficha h2 { font-size: 20px; font-weight: 800; letter-spacing: -.015em; margin: 8px 30px 10px 0; line-height: 1.25; }
+  .etiquetas { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .etq { background: var(--chip); border-radius: 6px; padding: 3px 8px; font-size: 12px; color: var(--text-2); }
+  .bloque { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
+  .bloque h3 { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+  .por-que { color: var(--text-2); font-size: 13px; }
+  .vecino { display: flex; align-items: center; gap: 8px; padding: 6px 6px; border-radius: 8px; cursor: pointer; }
+  .vecino:hover { background: var(--chip); }
+  .vecino .bola { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .vecino .nom { flex: 1; font-size: 13px; }
+  .rel { color: var(--text-3); font-size: 11px; white-space: nowrap; }
+  .conf { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+  .conf.EXTRACTED { background: var(--ok); } .conf.INFERRED { background: var(--warn); } .conf.AMBIGUOUS { background: var(--bad); }
+
+  /* Barra inferior */
+  #barra { bottom: 16px; right: 16px; display: flex; white-space: nowrap; align-items: center; gap: 4px; padding: 6px; border-radius: 14px; }
+  #barra button {
+    display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; color: var(--text-2);
+    padding: 8px 12px; border-radius: 10px; font: 600 12px Manrope, sans-serif; cursor: pointer;
+  }
+  #barra button:hover { background: var(--chip); color: var(--text); }
+  #barra .sep { width: 1px; height: 20px; background: var(--line-2); margin: 0 4px; }
+  .leyenda { display: flex; align-items: center; gap: 12px; padding: 0 10px; color: var(--text-3); font-size: 12px; }
+  .leyenda i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+
+  #tooltip { position: fixed; pointer-events: none; padding: 6px 10px; border-radius: 8px; background: var(--panel-solid); border: 1px solid var(--line-2); font-size: 12px; font-weight: 600; box-shadow: var(--shadow); opacity: 0; transition: opacity .1s; z-index: 10; }
+
+  ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 8px; }
+
+  /* Distribución: cabecera arriba, comunidades debajo */
+  #comunidades { top: calc(16px + var(--alto-cab, 260px) + 12px); }
+  @media (max-width: 1180px) { #comunidades { bottom: 78px; } #ficha { max-height: calc(100% - 94px); } }
+  @media (max-width: 760px) {
+    #cabecera, #comunidades { width: auto; right: 16px; }
+    #comunidades { display: none; }
+    #ficha { width: auto; left: 16px; top: auto; bottom: 80px; max-height: 55%; }
+    .leyenda { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="grafo"></div>
+<div id="tooltip"></div>
+
+<section id="cabecera" class="panel">
+  <div class="marca"><span class="punto"></span>Grafo de conocimiento</div>
+  <h1 id="titulo"></h1>
+  <div class="stats">
+    <div class="stat"><b id="s-nodos"></b><span>conceptos</span></div>
+    <div class="stat"><b id="s-rel"></b><span>relaciones</span></div>
+    <div class="stat"><b id="s-com"></b><span>áreas</span></div>
+  </div>
+  <div id="buscar-wrap">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="buscar" placeholder="Buscar…   (pulsa / )" autocomplete="off">
+  </div>
+  <div id="resultados"></div>
+</section>
+
+<section id="comunidades" class="panel">
+  <div class="titulo-sec">Tipo</div>
+  <div class="filtros" id="filtros-tipo"></div>
+  <div class="titulo-sec">Áreas <button id="ver-todo">Ver todo</button></div>
+  <div id="lista-com"></div>
+</section>
+
+<aside id="ficha" class="panel">
+  <button class="cerrar" aria-label="Cerrar">×</button>
+  <div id="ficha-cuerpo"></div>
+</aside>
+
+<nav id="barra" class="panel">
+  <button id="b-encuadrar" title="Encuadrar todo">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Encuadrar</button>
+  <button id="b-etiquetas" title="Mostrar u ocultar nombres">Nombres</button>
+  <button id="b-inferidas" title="Mostrar u ocultar relaciones deducidas">Deducidas: sí</button>
+  <span class="sep"></span>
+  <div class="leyenda"><span><i style="background:var(--ok)"></i>Explícita</span><span><i style="background:var(--warn)"></i>Deducida</span><span><i style="background:var(--bad)"></i>Dudosa</span></div>
+  <span class="sep"></span>
+  <button id="b-tema" title="Tema claro u oscuro">◐</button>
+</nav>
+
+<script>
+const DATOS = /*__DATOS__*/null;
+
+const TIPOS = { code: "Código", document: "Documento", concept: "Concepto", rationale: "Principio", image: "Imagen", paper: "Artículo", video: "Vídeo" };
+const RELACIONES = {
+  references: "enlaza con", implements: "implementa", contains: "contiene", calls: "llama a",
+  conceptually_related_to: "relacionado con", shares_data_with: "comparte datos con", imports: "importa",
+  imports_from: "importa de", semantically_similar_to: "se parece a", rationale_for: "justifica",
+  indirect_call: "llamada indirecta", cites: "cita", method: "método", uses: "usa", inherits: "hereda de"
+};
+const CONF = { EXTRACTED: "explícita", INFERRED: "deducida", AMBIGUOUS: "dudosa" };
+
+// Colores por comunidad: ángulo áureo, saturación alta, legibles en claro y oscuro
+const color = c => `hsl(${(c * 137.508 + 210) % 360}, 72%, ${document.documentElement.dataset.theme === "light" ? 48 : 64}%)`;
+
+const nodos = DATOS.nodes.map(n => ({ ...n }));
+const porId = new Map(nodos.map(n => [n.id, n]));
+const enlaces = DATOS.links.filter(l => porId.has(l.source) && porId.has(l.target)).map(l => ({ ...l }));
+const vecinos = new Map(nodos.map(n => [n.id, []]));
+enlaces.forEach(l => { vecinos.get(l.source).push({ l, otro: l.target, sale: true }); vecinos.get(l.target).push({ l, otro: l.source, sale: false }); });
+nodos.forEach(n => n.grado = vecinos.get(n.id).length);
+const maxGrado = Math.max(...nodos.map(n => n.grado));
+
+const comunidades = new Map();
+nodos.forEach(n => {
+  const c = n.community ?? -1;
+  if (!comunidades.has(c)) comunidades.set(c, { id: c, nombre: n.community_name || `Área ${c}`, nodos: [] });
+  comunidades.get(c).nodos.push(n);
+});
+const listaCom = [...comunidades.values()].sort((a, b) => b.nodos.length - a.nodos.length);
+
+let foco = null, hover = null, comActiva = null, verEtiquetas = true, verInferidas = true;
+const tiposOcultos = new Set();
+const resaltados = new Set();
+
+// ---------- Cabecera ----------
+document.getElementById("titulo").textContent = DATOS.titulo || "Proyecto";
+document.getElementById("s-nodos").textContent = nodos.length;
+document.getElementById("s-rel").textContent = enlaces.length;
+document.getElementById("s-com").textContent = comunidades.size;
+const ajustarAlto = () => document.documentElement.style.setProperty("--alto-cab", document.getElementById("cabecera").offsetHeight + "px");
+
+// ---------- Grafo ----------
+const visible = n => !tiposOcultos.has(n.file_type);
+const enlaceVisible = l => (verInferidas || l.confidence === "EXTRACTED") && visible(obj(l.source)) && visible(obj(l.target));
+const obj = x => typeof x === "object" ? x : porId.get(x);
+const radio = n => 3 + Math.sqrt(n.grado / maxGrado) * 11;
+const atenuado = n => (resaltados.size && !resaltados.has(n.id)) || (comActiva !== null && n.community !== comActiva && !resaltados.has(n.id));
+
+const G = ForceGraph()(document.getElementById("grafo"))
+  .graphData({ nodes: nodos, links: enlaces })
+  .nodeId("id")
+  .backgroundColor("rgba(0,0,0,0)")
+  .nodeRelSize(1)
+  .nodeVal(n => radio(n) ** 2)
+  .nodeVisibility(visible)
+  .linkVisibility(enlaceVisible)
+  .linkColor(l => {
+    const a = obj(l.source), b = obj(l.target);
+    const on = resaltados.size ? resaltados.has(a.id) && resaltados.has(b.id) : comActiva === null || (a.community === comActiva && b.community === comActiva);
+    const claro = document.documentElement.dataset.theme === "light";
+    if (!on) return claro ? "rgba(20,30,50,.04)" : "rgba(255,255,255,.035)";
+    if (l.confidence === "AMBIGUOUS") return "rgba(248,113,113,.7)";
+    if (l.confidence === "INFERRED") return claro ? "rgba(180,120,0,.45)" : "rgba(251,191,36,.45)";
+    return claro ? "rgba(20,30,50,.22)" : "rgba(220,228,255,.22)";
+  })
+  .linkWidth(l => resaltados.size && resaltados.has(obj(l.source).id) && resaltados.has(obj(l.target).id) ? 1.8 : .7)
+  .linkLineDash(l => l.confidence === "EXTRACTED" ? null : [3, 3])
+  .linkDirectionalParticles(l => resaltados.size && foco && (obj(l.source).id === foco.id || obj(l.target).id === foco.id) ? 2 : 0)
+  .linkDirectionalParticleWidth(2.2)
+  .linkDirectionalParticleSpeed(.006)
+  .nodeCanvasObject((n, ctx, escala) => {
+    const r = radio(n), col = color(n.community ?? 0), apagado = atenuado(n);
+    ctx.globalAlpha = apagado ? .12 : 1;
+    if (!apagado && (n === foco || n === hover)) {
+      ctx.beginPath(); ctx.arc(n.x, n.y, r + 6, 0, 2 * Math.PI);
+      ctx.fillStyle = col.replace("hsl", "hsla").replace(")", ", .22)"); ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 2 * Math.PI);
+    ctx.fillStyle = col; ctx.fill();
+    if (n.file_type === "rationale" || n.file_type === "document") {
+      ctx.lineWidth = r * .32; ctx.strokeStyle = document.documentElement.dataset.theme === "light" ? "#fff" : "#0b0d12"; ctx.stroke();
+    }
+    const mostrar = verEtiquetas && !apagado && (n === foco || n === hover || resaltados.has(n.id) || n.grado / maxGrado > .28 / Math.max(escala, .4) || escala > 2.2);
+    if (mostrar) {
+      const tam = Math.max(11 / escala, 2.6);
+      ctx.font = `${n.grado / maxGrado > .3 ? 700 : 600} ${tam}px Manrope, sans-serif`;
+      ctx.textAlign = "center"; ctx.textBaseline = "top";
+      const txt = n.label.length > 38 ? n.label.slice(0, 36) + "…" : n.label;
+      ctx.lineWidth = tam / 3.2; ctx.lineJoin = "round";
+      ctx.strokeStyle = document.documentElement.dataset.theme === "light" ? "rgba(245,246,249,.92)" : "rgba(11,13,18,.88)";
+      ctx.strokeText(txt, n.x, n.y + r + 2);
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--text");
+      ctx.fillText(txt, n.x, n.y + r + 2);
+    }
+    ctx.globalAlpha = 1;
+  })
+  .nodePointerAreaPaint((n, col, ctx) => { ctx.fillStyle = col; ctx.beginPath(); ctx.arc(n.x, n.y, radio(n) + 3, 0, 2 * Math.PI); ctx.fill(); })
+  .onNodeHover(n => {
+    hover = n || null; document.body.style.cursor = n ? "pointer" : "";
+    const t = document.getElementById("tooltip");
+    if (n) { t.textContent = n.label; t.style.opacity = 1; } else t.style.opacity = 0;
+  })
+  .onNodeClick(n => seleccionar(n))
+  .onBackgroundClick(() => seleccionar(null))
+  .warmupTicks(160)
+  .cooldownTicks(120)
+  .onEngineStop(() => { if (!window._encuadrado) { encuadrar(); window._encuadrado = true; } });
+setTimeout(() => { if (!foco && comActiva === null) encuadrar(); }, 2500);
+
+function encuadrar(filtro, ms = 700) {
+  const izq = innerWidth > 760 ? 362 : 0, der = document.getElementById("ficha").classList.contains("abierta") && innerWidth > 760 ? 392 : 0;
+  const xs = nodos.filter(n => visible(n) && (!filtro || filtro(n)) && n.x != null);
+  if (!xs.length) return;
+  const minX = Math.min(...xs.map(n => n.x)), maxX = Math.max(...xs.map(n => n.x)), minY = Math.min(...xs.map(n => n.y)), maxY = Math.max(...xs.map(n => n.y));
+  const ancho = Math.max(innerWidth - izq - der - 120, 200), alto = Math.max(innerHeight - 160, 200);
+  const k = Math.min(ancho / Math.max(maxX - minX, 1), alto / Math.max(maxY - minY, 1), 4);
+  const cx = (minX + maxX) / 2 - (izq - der) / 2 / k, cy = (minY + maxY) / 2;
+  G.centerAt(cx, cy, ms); G.zoom(k, ms);
+}
+
+G.d3Force("charge").strength(-70).distanceMax(260);
+G.d3Force("gravedad", alpha => nodos.forEach(n => { n.vx -= (n.x || 0) * .045 * alpha; n.vy -= (n.y || 0) * .045 * alpha; }));
+G.d3Force("link").distance(l => obj(l.source).community === obj(l.target).community ? 28 : 70);
+document.addEventListener("mousemove", e => { const t = document.getElementById("tooltip"); t.style.left = e.clientX + 14 + "px"; t.style.top = e.clientY + 12 + "px"; });
+
+// ---------- Selección y ficha ----------
+function seleccionar(n, centrar = true) {
+  foco = n; resaltados.clear();
+  const ficha = document.getElementById("ficha");
+  if (!n) { ficha.classList.remove("abierta"); history.replaceState(null, "", " "); return; }
+  resaltados.add(n.id); vecinos.get(n.id).forEach(v => resaltados.add(v.otro));
+  if (centrar) { const k = Math.max(G.zoom(), 2.4), off = innerWidth > 760 ? (362 - 392) / 2 / k : 0; G.centerAt(n.x - off, n.y, 600); G.zoom(k, 600); }
+  history.replaceState(null, "", "#" + encodeURIComponent(n.id));
+  pintarFicha(n); ficha.classList.add("abierta");
+}
+
+function pintarFicha(n) {
+  const col = color(n.community ?? 0);
+  const grupos = {};
+  vecinos.get(n.id).forEach(({ l, otro, sale }) => {
+    const rel = RELACIONES[l.relation] || l.relation.replaceAll("_", " ");
+    const clave = sale ? rel : `← ${rel}`;
+    (grupos[clave] ||= []).push({ o: porId.get(otro), l });
+  });
+  const hiper = (DATOS.hyperedges || []).filter(h => (h.nodes || []).includes(n.id));
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  document.getElementById("ficha-cuerpo").innerHTML = `
+    <div class="tipo"><span class="bola" style="width:8px;height:8px;border-radius:50%;background:${col}"></span>${esc(TIPOS[n.file_type] || n.file_type)}</div>
+    <h2>${esc(n.label)}</h2>
+    <div class="etiquetas">
+      <span class="etq" style="color:${col}">${esc(n.community_name || "")}</span>
+      <span class="etq">${n.grado} conexiones</span>
+      ${n.source_file ? `<span class="etq mono">${esc(n.source_file)}${n.source_location ? ":" + esc(String(n.source_location).replace(/^L/, "")) : ""}</span>` : ""}
+    </div>
+    ${n.rationale ? `<div class="bloque"><h3>Por qué</h3><p class="por-que">${esc(n.rationale)}</p></div>` : ""}
+    ${hiper.length ? `<div class="bloque"><h3>Forma parte de</h3>${hiper.map(h => `<div class="etq" style="margin:0 0 6px">${esc(h.label)}</div>`).join("")}</div>` : ""}
+    ${Object.entries(grupos).sort((a, b) => b[1].length - a[1].length).map(([rel, xs]) => `
+      <div class="bloque"><h3>${esc(rel)} · ${xs.length}</h3>
+        ${xs.sort((a, b) => b.o.grado - a.o.grado).map(({ o, l }) => `
+          <div class="vecino" data-id="${esc(o.id)}" title="Relación ${CONF[l.confidence] || ""}">
+            <span class="bola" style="background:${color(o.community ?? 0)}"></span>
+            <span class="nom">${esc(o.label)}</span>
+            <span class="conf ${esc(l.confidence)}"></span>
+          </div>`).join("")}
+      </div>`).join("")}
+  `;
+  document.querySelectorAll("#ficha .vecino").forEach(el => el.onclick = () => seleccionar(porId.get(el.dataset.id)));
+}
+document.querySelector("#ficha .cerrar").onclick = () => seleccionar(null);
+
+// ---------- Áreas ----------
+function pintarAreas() {
+  document.getElementById("lista-com").innerHTML = listaCom.map(c => `
+    <div class="com ${comActiva === c.id ? "activa" : ""}" data-c="${c.id}">
+      <span class="bola" style="background:${color(c.id)};box-shadow:0 0 10px ${color(c.id)}"></span>
+      <span class="nombre">${c.nombre}</span><span class="num">${c.nodos.length}</span>
+    </div>`).join("");
+  document.querySelectorAll(".com").forEach(el => el.onclick = () => {
+    const c = Number(el.dataset.c);
+    comActiva = comActiva === c ? null : c; seleccionar(null);
+    pintarAreas();
+    encuadrar(comActiva !== null ? n => n.community === comActiva : null);
+  });
+}
+document.getElementById("ver-todo").onclick = () => { comActiva = null; seleccionar(null); pintarAreas(); encuadrar(); };
+
+const tiposPresentes = [...new Set(nodos.map(n => n.file_type))];
+document.getElementById("filtros-tipo").innerHTML = tiposPresentes.map(t => `<button class="filtro on" data-t="${t}">${TIPOS[t] || t} <span style="opacity:.6">${nodos.filter(n => n.file_type === t).length}</span></button>`).join("");
+document.querySelectorAll(".filtro").forEach(b => b.onclick = () => {
+  const t = b.dataset.t; tiposOcultos.has(t) ? tiposOcultos.delete(t) : tiposOcultos.add(t);
+  b.classList.toggle("on", !tiposOcultos.has(t)); G.nodeVisibility(G.nodeVisibility());
+});
+
+// ---------- Búsqueda ----------
+const norm = s => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+const buscar = document.getElementById("buscar");
+buscar.oninput = () => {
+  const q = norm(buscar.value.trim()), caja = document.getElementById("resultados");
+  if (!q) { caja.innerHTML = ""; ajustarAlto(); return; }
+  const hits = nodos.filter(n => norm(n.label).includes(q) || norm(n.source_file).includes(q)).sort((a, b) => b.grado - a.grado).slice(0, 8);
+  caja.innerHTML = hits.length ? hits.map(n => `<div class="resultado" data-id="${n.id}"><span class="bola" style="width:8px;height:8px;border-radius:50%;background:${color(n.community ?? 0)}"></span>${n.label.replace(/</g, "&lt;")}<span class="rel" style="margin-left:auto">${TIPOS[n.file_type] || ""}</span></div>`).join("") : `<div class="rel" style="padding:8px">Sin resultados</div>`;
+  caja.querySelectorAll(".resultado").forEach(el => el.onclick = () => { seleccionar(porId.get(el.dataset.id)); buscar.value = ""; caja.innerHTML = ""; ajustarAlto(); });
+  ajustarAlto();
+};
+buscar.onkeydown = e => { if (e.key === "Enter") document.querySelector(".resultado")?.click(); if (e.key === "Escape") { buscar.value = ""; buscar.oninput(); buscar.blur(); } };
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== buscar) { e.preventDefault(); buscar.focus(); }
+  if (e.key === "Escape" && document.activeElement !== buscar) seleccionar(null);
+});
+
+// ---------- Barra ----------
+document.getElementById("b-encuadrar").onclick = () => encuadrar();
+document.getElementById("b-etiquetas").onclick = e => { verEtiquetas = !verEtiquetas; e.currentTarget.style.opacity = verEtiquetas ? 1 : .5; };
+document.getElementById("b-inferidas").onclick = e => { verInferidas = !verInferidas; e.currentTarget.textContent = "Deducidas: " + (verInferidas ? "sí" : "no"); G.linkVisibility(G.linkVisibility()); };
+document.getElementById("b-tema").onclick = () => {
+  const r = document.documentElement; r.dataset.theme = r.dataset.theme === "light" ? "dark" : "light";
+  try { localStorage.setItem("grafo-tema", r.dataset.theme); } catch (e) {}
+  pintarAreas(); if (foco) pintarFicha(foco);
+};
+try { const t = localStorage.getItem("grafo-tema"); if (t) document.documentElement.dataset.theme = t; else if (matchMedia("(prefers-color-scheme: light)").matches) document.documentElement.dataset.theme = "light"; } catch (e) {}
+
+addEventListener("resize", () => { G.width(innerWidth).height(innerHeight); ajustarAlto(); });
+pintarAreas(); ajustarAlto();
+if (location.hash) { const n = porId.get(decodeURIComponent(location.hash.slice(1))); if (n) setTimeout(() => seleccionar(n), 1500); }
+</script>
+</body>
+</html>

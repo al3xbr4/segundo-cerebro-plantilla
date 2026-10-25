@@ -1,10 +1,10 @@
 # Segundo cerebro (reglas para todas las conversaciones)
 
-El usuario tiene una bóveda de Obsidian en `~/Documents/SegundoCerebro` (en Windows, `%USERPROFILE%\Documents\SegundoCerebro`), sincronizada con un repositorio privado suyo en GitHub. Se trae sola al empezar cada sesión y se sube sola al cerrarla (hooks de `~/.claude/settings.json` que ejecutan `scripts/sync.sh`).
+El usuario tiene una bóveda de Obsidian en `~/Documents/SegundoCerebro` (en Windows, `%USERPROFILE%\Documents\SegundoCerebro`), sincronizada con un repositorio privado suyo en GitHub. Sus instrucciones están en el `AGENTS.md` de la bóveda.
 
 ## Consultar
 - Antes de empezar una tarea sobre un proyecto, cliente o tema, mira si hay algo en `wiki/` de la bóveda (empieza por `wiki/Inicio.md`). Úsalo como contexto sin anunciarlo.
-- Si existe `proyectos/<Proyecto>/` o el proyecto tiene `graphify-out/graph.json`, consulta el grafo antes de leer muchos archivos.
+- Si existe `proyectos/<Proyecto>/` en la bóveda o el proyecto tiene `graphify-out/graph.json`, consulta el grafo antes de leer muchos archivos.
 
 ## Guardar
 Al terminar algo que merezca recordarse, escribe **una** nota en `raw/` de la bóveda, sin pedir permiso:
@@ -16,7 +16,7 @@ Formato: `raw/AAAA-MM-DD <proyecto> - <tema>.md`
 ```markdown
 ---
 tipo: fuente
-origen: conversación de Claude Code
+origen: conversación (<Codex | Claude Code>)
 proyecto: <nombre o ruta del proyecto>
 capturado: AAAA-MM-DD
 procesado: false
@@ -31,4 +31,6 @@ procesado: false
 
 Una nota por tema; si ya existe una del mismo día y tema, añádele contenido en vez de crear otra. Al final dile al usuario en una línea que lo has guardado en la bóveda.
 
-No hagas commit ni push tú: lo hace el hook al cerrar la sesión. La conversión de `raw/` a `wiki/` se hace al decir «procesa raw» dentro de la bóveda.
+## Sincronizar
+- **Claude Code:** no hagas nada; los hooks descargan la bóveda al abrir la sesión y la suben al cerrarla.
+- **Codex u otro agente sin hooks:** una tarea programada del sistema la sincroniza cada 15 minutos. Si acabas de guardar algo importante, ejecuta además `bash ~/Documents/SegundoCerebro/scripts/sync.sh push`.

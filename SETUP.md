@@ -22,8 +22,8 @@ Monta mi segundo cerebro en este ordenador Windows. Hazlo paso a paso y verifica
 7. Añade %USERPROFILE%\.local\bin y %LOCALAPPDATA%\Microsoft\WinGet\Links al PATH de mi usuario si no están.
 8. Instala Obsidian (`winget install -e --id Obsidian.Obsidian`) y abre la bóveda con la URI obsidian://open?path=<ruta de la bóveda>.
 9. Guardado y sincronización automáticos:
-   - Añade al final de %USERPROFILE%\.claude\CLAUDE.md (créalo si no existe) estas dos líneas: `# Segundo cerebro` y `@~/Documents/SegundoCerebro/claude-global/REGLAS.md`.
-   - Fusiona los hooks de claude-global/hooks.json de la bóveda en %USERPROFILE%\.claude\settings.json SIN borrar lo que ya haya.
+   - Añade al final de %USERPROFILE%\.claude\CLAUDE.md (créalo si no existe) estas dos líneas: `# Segundo cerebro` y `@~/Documents/SegundoCerebro/global/REGLAS.md`.
+   - Fusiona los hooks de global/hooks-claude.json de la bóveda en %USERPROFILE%\.claude\settings.json SIN borrar lo que ya haya.
    - Prueba `bash scripts/sync.sh pull` en la bóveda y revisa scripts/.sync.log.
 10. Historial: en %USERPROFILE%\.claude\settings.json pon `"cleanupPeriodDays": 365` (sin borrar lo demás) para que no se pierdan conversaciones. Después, desde la bóveda, ejecuta la skill /importar-historial para meter en raw/ lo importante de mis conversaciones antiguas de este ordenador. Antes de resumir, enséñame cuántas hay por proyecto y pregúntame si las quiero todas.
 11. Comprueba que funciona: `graphify --help`, `yt-dlp --version`, `ffmpeg -version` y `python -c "import faster_whisper"`.
@@ -47,8 +47,8 @@ Monta mi segundo cerebro en este Mac. Hazlo paso a paso y verifica cada cosa:
 6. Transcripción local: crea un entorno con `uv venv ~/.venvs/whisper` e instala en él `faster-whisper "av==18.0.0"`. Si el Mac es Apple Silicon (M1/M2/M3/M4), instala también `mlx-whisper`, que es el que usa watch-video en esos Mac. Dime qué ruta de Python tiene que usar la skill.
 7. Abre la bóveda: `open "obsidian://open?path=$HOME/Documents/SegundoCerebro"`.
 8. Guardado y sincronización automáticos:
-   - Añade al final de ~/.claude/CLAUDE.md (créalo si no existe) estas dos líneas: `# Segundo cerebro` y `@~/Documents/SegundoCerebro/claude-global/REGLAS.md`.
-   - Fusiona los hooks de claude-global/hooks.json de la bóveda en ~/.claude/settings.json SIN borrar lo que ya haya.
+   - Añade al final de ~/.claude/CLAUDE.md (créalo si no existe) estas dos líneas: `# Segundo cerebro` y `@~/Documents/SegundoCerebro/global/REGLAS.md`.
+   - Fusiona los hooks de global/hooks-claude.json de la bóveda en ~/.claude/settings.json SIN borrar lo que ya haya.
    - Prueba `bash scripts/sync.sh pull` en la bóveda y revisa scripts/.sync.log.
 9. Historial: en ~/.claude/settings.json pon `"cleanupPeriodDays": 365` (sin borrar lo demás) para que no se pierdan conversaciones. Después, desde la bóveda, ejecuta la skill /importar-historial para meter en raw/ lo importante de mis conversaciones antiguas de este ordenador. Antes de resumir, enséñame cuántas hay por proyecto y pregúntame si las quiero todas.
 10. Comprueba que funciona: `graphify --help`, `yt-dlp --version`, `ffmpeg -version` y que el entorno importa faster_whisper.
@@ -62,7 +62,7 @@ Al acabar, recuérdame que reinicie Claude Code para que cargue las skills nueva
 ## Cómo se mantiene al día solo
 
 - **Al abrir cualquier sesión de Claude Code**, en cualquier carpeta, el hook `SessionStart` ejecuta `scripts/sync.sh pull` y trae lo que hayas guardado en otro ordenador.
-- **Durante la sesión**, las reglas de `claude-global/REGLAS.md` (importadas desde `~/.claude/CLAUDE.md`) hacen que Claude consulte la wiki y guarde en `raw/` lo importante de esa conversación.
+- **Durante la sesión**, las reglas de `global/REGLAS.md` (importadas desde `~/.claude/CLAUDE.md`) hacen que Claude consulte la wiki y guarde en `raw/` lo importante de esa conversación.
 - **Al cerrar la sesión**, el hook `SessionEnd` ejecuta `scripts/sync.sh push`, que hace commit y lo sube a GitHub.
 - Si algo falla (sin conexión, conflicto), no bloquea Claude Code: queda anotado en `scripts/.sync.log` y se reintenta la próxima vez.
 - `raw/` no se ordena solo. Abre Claude Code en la bóveda y di «procesa raw» para pasarlo a `wiki/`.
