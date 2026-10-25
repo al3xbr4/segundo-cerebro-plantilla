@@ -1,84 +1,61 @@
-# Instalar el segundo cerebro en otro ordenador
+# Instalar el segundo cerebro
 
-Copia el prompt de tu sistema y pégalo tal cual en **Claude Code**. Claude hará la instalación y te pedirá permiso para cada paso.
+Copia el prompt de abajo y pégalo tal cual en tu agente: **Codex** o **Claude Code**. Él hace la instalación y te pide permiso en cada paso. Sirve para Windows y para Mac.
 
-Requisito previo: tener Claude Code instalado y una cuenta de GitHub.
+- **Con cuenta de GitHub:** se crea tu propio repositorio **privado** a partir de esta plantilla y la bóveda se sincroniza entre tus ordenadores.
+- **Sin cuenta de GitHub:** todo se queda en tu ordenador, con historial local.
 
-Cada persona crea **su propio repositorio privado** a partir de esta plantilla. La plantilla está vacía: tus notas solo van a tu repositorio y nadie más las ve.
+La plantilla está vacía: tus notas solo van a tu ordenador o a tu repositorio privado, y nadie más las ve.
 
 ---
 
-## Prompt para Windows (ordenador de la empresa)
+## Prompt de instalación
 
 ```text
-Monta mi segundo cerebro en este ordenador Windows. Hazlo paso a paso y verifica cada cosa:
+Monta mi "segundo cerebro": una bóveda de Obsidian que tú uses como memoria en todas mis conversaciones. Plantilla: https://github.com/al3xbr4/segundo-cerebro-plantilla
+Hazlo paso a paso, pídeme permiso cuando haga falta y comprueba cada cosa.
 
-1. Si no tengo gh, instálalo con `winget install -e --id GitHub.cli` y pídeme que haga `gh auth login`. Después crea mi propio repositorio PRIVADO a partir de la plantilla y clónalo en %USERPROFILE%\Documents\SegundoCerebro: `gh repo create segundo-cerebro --private --template al3xbr4/segundo-cerebro-plantilla --clone` desde %USERPROFILE%\Documents y renombra la carpeta a SegundoCerebro. Comprueba con `gh repo view --json visibility` que es PRIVATE.
-2. Comprueba que tengo Node.js (npx), Python 3.10+ y git. Lo que falte, instálalo con winget (OpenJS.NodeJS.LTS, Python.Python.3.12, Git.Git).
-3. Instala uv con `python -m pip install uv`.
-4. Graphify: `python -m uv tool install graphifyy` y después `%USERPROFILE%\.local\bin\graphify install --platform claude`.
-5. Skills: `npx -y skills add vercel-labs/skills@find-skills -g -a claude-code -y` y `npx -y skills add coreyhaines31/makerskills@watch-video -g -a claude-code -y`.
-6. Dependencias de vídeo: `python -m uv tool install yt-dlp`, `winget install -e --id Gyan.FFmpeg`, y `python -m pip install --user faster-whisper "av==18.0.0"` (av 19 rompe faster-whisper 1.2.1).
-7. Añade %USERPROFILE%\.local\bin y %LOCALAPPDATA%\Microsoft\WinGet\Links al PATH de mi usuario si no están.
-8. Instala Obsidian (`winget install -e --id Obsidian.Obsidian`) y abre la bóveda con la URI obsidian://open?path=<ruta de la bóveda>.
-9. Guardado y sincronización automáticos:
-   - Añade al final de %USERPROFILE%\.claude\CLAUDE.md (créalo si no existe) estas dos líneas: `# Segundo cerebro` y `@~/Documents/SegundoCerebro/global/REGLAS.md`.
-   - Fusiona los hooks de global/hooks-claude.json de la bóveda en %USERPROFILE%\.claude\settings.json SIN borrar lo que ya haya.
-   - Prueba `bash scripts/sync.sh pull` en la bóveda y revisa scripts/.sync.log.
-10. Historial: en %USERPROFILE%\.claude\settings.json pon `"cleanupPeriodDays": 365` (sin borrar lo demás) para que no se pierdan conversaciones. Después, desde la bóveda, ejecuta la skill /importar-historial para meter en raw/ lo importante de mis conversaciones antiguas de este ordenador. Antes de resumir, enséñame cuántas hay por proyecto y pregúntame si las quiero todas.
-11. Comprueba que funciona: `graphify --help`, `yt-dlp --version`, `ffmpeg -version` y `python -c "import faster_whisper"`.
-12. Lee el CLAUDE.md de la bóveda y dime en qué estado está y qué hay en raw/ sin procesar.
-
-Al acabar, recuérdame que reinicie Claude Code para que cargue las skills nuevas.
+0. Detecta: mi sistema (Windows o Mac), qué agente eres (Codex o Claude Code) y si tengo `gh` con sesión de GitHub iniciada. Dímelo antes de seguir.
+1. Básicos que falten: git, Node.js (npx), Python 3.10+ y uv. Windows: winget (Git.Git, OpenJS.NodeJS.LTS, Python.Python.3.12) y `python -m pip install uv`. En Windows, define además la variable de usuario `UV_TOOL_DIR=%USERPROFILE%\.uv	ools` antes de instalar herramientas con uv: si el agente es una app de escritorio, lo que instale en AppData puede quedar aislado y la rutina programada no lo vería. Mac: Homebrew (`brew install git node python uv`; si no tengo Homebrew, dime cómo instalarlo y espera).
+2. La bóveda, en Documentos/SegundoCerebro:
+   - Con GitHub: `gh repo create segundo-cerebro --private --template al3xbr4/segundo-cerebro-plantilla --clone` desde Documentos, renombra la carpeta a SegundoCerebro y comprueba con `gh repo view --json visibility` que es PRIVATE.
+   - Sin GitHub: `git clone https://github.com/al3xbr4/segundo-cerebro-plantilla.git SegundoCerebro`, borra su carpeta .git y haz `git init` con un primer commit.
+3. Lee el AGENTS.md de la bóveda: son las reglas de funcionamiento.
+4. Memoria en todas las conversaciones:
+   - Codex: copia el contenido de global/REGLAS.md al final de ~/.codex/AGENTS.md (créalo si no existe, sin borrar nada). Añade la ruta de la bóveda a `writable_roots` en [sandbox_workspace_write] de ~/.codex/config.toml, para poder guardar notas trabajando en otras carpetas; si mi versión no tiene esa opción, dímelo.
+   - Claude Code: añade al final de ~/.claude/CLAUDE.md las líneas `# Segundo cerebro` y `@~/Documents/SegundoCerebro/global/REGLAS.md`. Si hay GitHub, fusiona global/hooks-claude.json en ~/.claude/settings.json (sin borrar nada). Pon también `"cleanupPeriodDays": 365` para no perder conversaciones.
+5. Skills (con `-a codex` o `-a claude-code`, según el agente): `npx -y skills add vercel-labs/skills@find-skills -g -a <agente> -y` y `npx -y skills add coreyhaines31/makerskills@watch-video -g -a <agente> -y`.
+6. Graphify: `uv tool install graphifyy` (Windows: `python -m uv tool install graphifyy`) y `graphify install --platform <codex|claude>`. Comprueba que ~/.local/bin está en el PATH.
+7. Vídeo: `uv tool install yt-dlp`; ffmpeg (Windows: `winget install -e --id Gyan.FFmpeg`, Mac: `brew install ffmpeg`); Whisper local: `faster-whisper` con `av==18.0.0` (la 19 da error). En un Mac M1 o posterior, añade `mlx-whisper`.
+8. Obsidian: Windows `winget install -e --id Obsidian.Obsidian`, Mac `brew install --cask obsidian`. Ábrelo con obsidian://open?path=<ruta de la bóveda>.
+9. Rutina diaria (actualiza grafos, importa conversaciones nuevas y ordena raw/ → wiki/):
+   - Escribe en scripts/agente.local la palabra `codex` o `claude`.
+   - Pregúntame qué proyectos de código quiero vigilar y apúntalos en scripts/proyectos.local, uno por línea, como `ruta|Nombre`.
+   - Windows: `powershell -ExecutionPolicy Bypass -File scripts\instalar_rutina.ps1 -Hora 21:00`. Mac: `bash scripts/instalar_rutina.sh 21:00`. Si uso Codex y hay GitHub, añade `-SyncCada15Min` (Windows) o `--sync` (Mac).
+10. Historial: ejecuta `python scripts/extraer_historial.py`, enséñame cuántas conversaciones antiguas tengo por proyecto y, si te digo que sí, sigue el procedimiento «Importa mi historial» de AGENTS.md.
+11. Comprueba que todo funciona (`graphify --help`, `yt-dlp --version`, `ffmpeg -version`, `python -c "import faster_whisper"`) y explícame en 5 líneas cómo usarlo en el día a día. Recuérdame reiniciar el agente para que cargue las skills.
 ```
 
 ---
 
-## Prompt para MacBook
+## Cómo se mantiene al día
 
-```text
-Monta mi segundo cerebro en este Mac. Hazlo paso a paso y verifica cada cosa:
+| Qué | Cuándo | Cómo |
+|---|---|---|
+| Consultar la wiki y guardar lo importante en `raw/` | En cada conversación | Reglas globales (`global/REGLAS.md`) |
+| Sincronizar con GitHub | Al abrir y cerrar sesión (Claude Code) o cada 15 min (Codex) | `scripts/sync.sh` |
+| Actualizar grafos de código | Cada día | Rutina: `graphify update`, sin IA |
+| Importar conversaciones nuevas | Cada día | Rutina: `extraer_historial.py` + el agente |
+| Pasar `raw/` a `wiki/` | Cada día | Rutina: el agente en modo automático |
 
-1. Si no tengo Homebrew, dime cómo instalarlo (https://brew.sh) y espera a que lo haga.
-2. Instala lo básico: `brew install git gh node python uv ffmpeg yt-dlp` y `brew install --cask obsidian`.
-3. Si gh no tiene sesión, pídeme que haga `gh auth login`. Después crea mi propio repositorio PRIVADO a partir de la plantilla y clónalo en ~/Documents/SegundoCerebro: `gh repo create segundo-cerebro --private --template al3xbr4/segundo-cerebro-plantilla --clone` desde ~/Documents y renombra la carpeta a SegundoCerebro. Comprueba con `gh repo view --json visibility` que es PRIVATE.
-4. Graphify: `uv tool install graphifyy`, `uv tool update-shell` y `graphify install --platform claude`.
-5. Skills: `npx -y skills add vercel-labs/skills@find-skills -g -a claude-code -y` y `npx -y skills add coreyhaines31/makerskills@watch-video -g -a claude-code -y`.
-6. Transcripción local: crea un entorno con `uv venv ~/.venvs/whisper` e instala en él `faster-whisper "av==18.0.0"`. Si el Mac es Apple Silicon (M1/M2/M3/M4), instala también `mlx-whisper`, que es el que usa watch-video en esos Mac. Dime qué ruta de Python tiene que usar la skill.
-7. Abre la bóveda: `open "obsidian://open?path=$HOME/Documents/SegundoCerebro"`.
-8. Guardado y sincronización automáticos:
-   - Añade al final de ~/.claude/CLAUDE.md (créalo si no existe) estas dos líneas: `# Segundo cerebro` y `@~/Documents/SegundoCerebro/global/REGLAS.md`.
-   - Fusiona los hooks de global/hooks-claude.json de la bóveda en ~/.claude/settings.json SIN borrar lo que ya haya.
-   - Prueba `bash scripts/sync.sh pull` en la bóveda y revisa scripts/.sync.log.
-9. Historial: en ~/.claude/settings.json pon `"cleanupPeriodDays": 365` (sin borrar lo demás) para que no se pierdan conversaciones. Después, desde la bóveda, ejecuta la skill /importar-historial para meter en raw/ lo importante de mis conversaciones antiguas de este ordenador. Antes de resumir, enséñame cuántas hay por proyecto y pregúntame si las quiero todas.
-10. Comprueba que funciona: `graphify --help`, `yt-dlp --version`, `ffmpeg -version` y que el entorno importa faster_whisper.
-11. Lee el CLAUDE.md de la bóveda y dime en qué estado está y qué hay en raw/ sin procesar.
+Lo que hace la rutina queda en `scripts/.rutina.log`, y los fallos de sincronización en `scripts/.sync.log`. Para quitarla: `instalar_rutina.ps1 -Quitar` o `instalar_rutina.sh --quitar`.
 
-Al acabar, recuérdame que reinicie Claude Code para que cargue las skills nuevas.
-```
-
----
-
-## Cómo se mantiene al día solo
-
-- **Al abrir cualquier sesión de Claude Code**, en cualquier carpeta, el hook `SessionStart` ejecuta `scripts/sync.sh pull` y trae lo que hayas guardado en otro ordenador.
-- **Durante la sesión**, las reglas de `global/REGLAS.md` (importadas desde `~/.claude/CLAUDE.md`) hacen que Claude consulte la wiki y guarde en `raw/` lo importante de esa conversación.
-- **Al cerrar la sesión**, el hook `SessionEnd` ejecuta `scripts/sync.sh push`, que hace commit y lo sube a GitHub.
-- Si algo falla (sin conexión, conflicto), no bloquea Claude Code: queda anotado en `scripts/.sync.log` y se reintenta la próxima vez.
-- `raw/` no se ordena solo. Abre Claude Code en la bóveda y di «procesa raw» para pasarlo a `wiki/`.
-
-Si editas notas directamente en Obsidian sin abrir Claude Code, puedes instalar el plugin comunitario **Git** (de Vinzent03) para que Obsidian también haga commit y push solo.
+La rutina usa tu agente en modo automático, así que consume de tu plan o tu cuota cada día. Si no hay nada nuevo, apenas gasta.
 
 ## Proyectos de código
 
-Para indexar un proyecto de código y volcarlo en la bóveda, ejecuta dentro del proyecto `/graphify . --update` la primera vez `/graphify . --obsidian --obsidian-dir <bóveda>/proyectos/<Nombre>`, y después de cada cambio `/graphify . --update`.
+Dentro del proyecto, la primera vez: `/graphify . --obsidian --obsidian-dir <bóveda>/proyectos/<Nombre>` y `python <bóveda>/scripts/visor_grafo.py graphify-out`, que genera `grafo.html`, un visor del grafo que se abre con doble clic. Después, añade el proyecto a `scripts/proyectos.local` y la rutina lo mantendrá al día.
 
-## Empezar a usarlo
+## Conversaciones de claude.ai
 
-1. Abre Claude Code en la carpeta de la bóveda.
-2. Mete material en `raw/` (notas, PDFs, transcripciones con `/watch-video <url>`) y di «procesa raw».
-3. Para el cerebro de empresa, empieza por `empresa/Elegir camino.md` y `empresa/Matriz de permisos.md`.
-
-## Aprovechar conversaciones antiguas
-
-En cualquier ordenador, abre Claude Code en la bóveda y di **/importar-historial**. Lee las conversaciones de Claude Code de ese ordenador, tapa claves y tokens, y deja en `raw/` notas por proyecto y tema con decisiones, problemas resueltos y pendientes. Las ya importadas no se repiten. También acepta el export de claude.ai (Ajustes → Privacidad → Exportar datos → `conversations.json`).
+`python scripts/extraer_historial.py --claude-ai <ruta>/conversations.json` (el archivo sale de Ajustes → Privacidad → Exportar datos).

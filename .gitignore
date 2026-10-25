@@ -17,3 +17,8 @@ desktop.ini
 *.key
 *.pem
 scripts/.sync.log
+
+# Configuración de cada ordenador
+scripts/*.local
+scripts/.rutina.log
+scripts/.sync.log

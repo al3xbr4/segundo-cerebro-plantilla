@@ -130,6 +130,7 @@ def main():
     ap.add_argument("--dias", type=int, default=0, help="solo conversaciones de los últimos N días")
     ap.add_argument("--claude-ai", help="ruta a conversations.json del export de claude.ai")
     ap.add_argument("--todas", action="store_true", help="incluir también las ya importadas")
+    ap.add_argument("--max-tokens", type=int, default=0, help="como mucho ~N tokens; se quedan las más recientes")
     ap.add_argument("--marcar", action="store_true", help="marcar como importadas las fichas de la carpeta temporal")
     a = ap.parse_args()
 
@@ -190,6 +191,17 @@ def main():
                 continue
             proyecto, texto = ficha(sid, titulo, cwd, inicio, fin, msgs, "codex")
             escritas.append((sid, proyecto, texto, inicio or ""))
+
+    if a.max_tokens:
+        escritas.sort(key=lambda e: e[3], reverse=True)
+        total, dentro = 0, []
+        for e in escritas:
+            if dentro and total + len(e[2]) // 4 > a.max_tokens:
+                break
+            dentro.append(e); total += len(e[2]) // 4
+        if len(dentro) < len(escritas):
+            print(f"Límite de {a.max_tokens} tokens: {len(dentro)} de {len(escritas)} (el resto, en la próxima ejecución)")
+        escritas = dentro
 
     for sid, proyecto, texto, inicio in escritas:
         fecha = (inicio or "")[:10] or "sin-fecha"

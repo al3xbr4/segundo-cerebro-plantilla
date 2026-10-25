@@ -2,8 +2,9 @@
 
 # 🧠 Segundo Cerebro
 
-### Claude Code + Obsidian: la IA recuerda tus proyectos y no empieza de cero cada vez
+### Codex o Claude Code + Obsidian: tu IA recuerda tus proyectos y no empieza de cero cada vez
 
+![Codex](https://img.shields.io/badge/Codex-111111?style=for-the-badge&logo=openai&logoColor=white)
 ![Claude Code](https://img.shields.io/badge/Claude_Code-D97757?style=for-the-badge&logo=claude&logoColor=white)
 ![Obsidian](https://img.shields.io/badge/Obsidian-7C3AED?style=for-the-badge&logo=obsidian&logoColor=white)
 ![GitHub](https://img.shields.io/badge/Sincronizado_con_GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
@@ -19,10 +20,11 @@
 
 | | |
 |---|---|
-| 🗂️ **Memoria entre conversaciones** | Claude consulta lo que ya sabes antes de responder y guarda lo importante al terminar. |
-| 🔄 **Igual en todos tus ordenadores** | La bóveda se descarga al abrir Claude Code y se sube al cerrarlo. |
+| 🗂️ **Memoria entre conversaciones** | Tu agente consulta lo que ya sabes antes de responder y guarda lo importante al terminar. |
+| 🔄 **Igual en todos tus ordenadores** | Se sincroniza sola con tu repositorio privado (opcional; sin GitHub funciona en local). |
+| ⏰ **Rutina diaria** | Actualiza los grafos, importa conversaciones nuevas y ordena las notas, sin que hagas nada. |
 | 📜 **Aprovecha tu historial** | `/importar-historial` convierte tus conversaciones antiguas en notas útiles. |
-| 🕸️ **Proyectos de código en grafo** | Graphify indexa tu código para que Claude no tenga que releerlo entero cada vez. |
+| 🕸️ **Proyectos de código en grafo** | Graphify indexa tu código para que el agente no lo relea entero cada vez, con un visor interactivo. |
 | 🎬 **Ve vídeos** | `/watch-video` transcribe YouTube, Instagram, TikTok o archivos locales. |
 | 🏢 **Kit de cerebro de empresa** | Matriz de permisos, fichas por persona, subagentes por área y un plan de 4 semanas. |
 
@@ -33,19 +35,19 @@
 ```mermaid
 flowchart LR
     A["📥 raw/<br/>notas, ideas,<br/>conversaciones"] -->|«procesa raw»| B["📚 wiki/<br/>conocimiento<br/>enlazado"]
-    B -->|Claude lo consulta| C["🤖 Claude Code"]
+    B -->|lo consulta| C["🤖 Codex / Claude Code"]
     C -->|guarda lo importante| A
     C -->|crea| D["📤 output/<br/>planes, informes,<br/>contenido"]
     E["💻 Tus proyectos"] -->|/graphify| F["🕸️ proyectos/<br/>grafos de código"]
     F --> C
-    G[("☁️ Tu repo privado<br/>en GitHub")] <-->|al abrir y al cerrar| C
+    G[("☁️ Tu repo privado<br/>en GitHub (opcional)")] <-->|sincroniza| C
 ```
 
 | Carpeta | Para qué | Quién escribe |
 |---|---|---|
-| `raw/` | Bandeja de entrada, sin orden | Tú y Claude |
-| `wiki/` | Una nota por concepto, enlazadas | Claude |
-| `output/` | Lo que Claude produce para ti | Claude |
+| `raw/` | Bandeja de entrada, sin orden | Tú y el agente |
+| `wiki/` | Una nota por concepto, enlazadas | El agente |
+| `output/` | Lo que el agente produce para ti | El agente |
 | `proyectos/` | Grafos de tus proyectos de código | Graphify |
 | `empresa/` | Kit para montar el cerebro de IA de una empresa | Tú |
 
@@ -53,9 +55,9 @@ flowchart LR
 
 ## 🚀 Empezar
 
-1. Abre **[SETUP.md](SETUP.md)**, copia el prompt de tu sistema (Windows o Mac) y pégalo en Claude Code.
-2. Claude te crea **tu propio repositorio privado** a partir de esta plantilla e instala todo: skills, herramientas, Obsidian y la sincronización.
-3. Di **/importar-historial** para aprovechar tus conversaciones anteriores.
+1. Abre **[SETUP.md](SETUP.md)**, copia el prompt y pégalo en **Codex** o **Claude Code** (Windows o Mac).
+2. Tu agente lo instala todo: la bóveda (en local o en **tu propio repositorio privado**), las skills, Obsidian y la rutina diaria.
+3. Dile **«importa mi historial»** para aprovechar tus conversaciones anteriores.
 4. Abre Obsidian y pulsa **Ctrl+G** para ver cómo crece el grafo.
 
 > [!NOTE]
@@ -70,8 +72,9 @@ flowchart LR
 | [Graphify](https://github.com/Graphify-Labs/graphify) | `/graphify <ruta>` | Grafo de conocimiento de un proyecto |
 | Watch Video | `/watch-video <url>` | Transcribir y analizar vídeos |
 | Find Skills | `/find-skills` | Buscar e instalar más skills |
-| Importar historial | `/importar-historial` | Pasar conversaciones antiguas a notas |
-| Subagentes | `procesador-raw`, `investigador` | Ordenar `raw/` y crear documentos en `output/` |
+| Importar historial | «importa mi historial» | Pasar conversaciones antiguas de Codex y Claude Code a notas |
+| Visor del grafo | `scripts/visor_grafo.py` | `grafo.html`: buscador, áreas, ficha de cada concepto |
+| Rutina diaria | `scripts/rutina.sh` | Grafos, historial y `raw/` → `wiki/` automáticos |
 
 ---
 
@@ -86,6 +89,6 @@ flowchart LR
 
 ---
 
-Hecho con [Claude Code](https://claude.com/claude-code) · Obsidian · GitHub
+Funciona con Codex y Claude Code · Obsidian · GitHub
 
 </div>
