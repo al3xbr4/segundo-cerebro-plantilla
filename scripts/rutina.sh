@@ -54,6 +54,9 @@ case "$AGENTE" in
     echo "agente: no encuentro claude ni codex; me salto el historial y raw/" ;;
 esac
 
+# 4. Visor del cerebro entero (cerebro.html); el título se puede poner en scripts/titulo.local
+TITULO=$(tr -d '\r' < scripts/titulo.local 2>/dev/null); "$PY" scripts/visor_boveda.py --con-raw --titulo "${TITULO:-Segundo cerebro}"
+
 bash scripts/sync.sh push
 echo "===== fin $(date '+%H:%M:%S') ====="
 exit 0

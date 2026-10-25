@@ -10,7 +10,7 @@
 ![GitHub](https://img.shields.io/badge/Sincronizado_con_GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
 ![Windows y macOS](https://img.shields.io/badge/Windows_·_macOS-0078D4?style=for-the-badge)
 
-**[Instalar en 5 minutos →](SETUP.md)**
+**[Instalar en 5 minutos →](SETUP.md)** · **[Ver la demo del grafo →](https://al3xbr4.github.io/segundo-cerebro-plantilla/cerebro.html)**
 
 </div>
 
@@ -59,6 +59,7 @@ flowchart LR
 2. Tu agente lo instala todo: la bóveda (en local o en **tu propio repositorio privado**), las skills, Obsidian y la rutina diaria.
 3. Dile **«importa mi historial»** para aprovechar tus conversaciones anteriores.
 4. Abre Obsidian y pulsa **Ctrl+G** para ver cómo crece el grafo.
+5. Abre **`cerebro.html`** de la bóveda con doble clic: el grafo de todo lo que sabe tu IA, con buscador y fichas. La rutina lo regenera cada día y sirve para enseñárselo a quien quieras.
 
 > [!NOTE]
 > Esta plantilla está vacía. Tus notas van solo a **tu** repositorio privado; nadie más las ve.

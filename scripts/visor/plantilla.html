@@ -171,7 +171,8 @@
 <script>
 const DATOS = /*__DATOS__*/null;
 
-const TIPOS = { code: "Código", document: "Documento", concept: "Concepto", rationale: "Principio", image: "Imagen", paper: "Artículo", video: "Vídeo" };
+const TIPOS = { code: "Código", document: "Documento", concept: "Concepto", rationale: "Principio", image: "Imagen", paper: "Artículo", video: "Vídeo",
+  proyecto: "Proyecto", persona: "Persona", concepto: "Concepto", herramienta: "Herramienta", output: "Creado por la IA", plantilla: "Plantilla", fuente: "Fuente", indice: "Índice", otro: "Nota" };
 const RELACIONES = {
   references: "enlaza con", implements: "implementa", contains: "contiene", calls: "llama a",
   conceptually_related_to: "relacionado con", shares_data_with: "comparte datos con", imports: "importa",
@@ -323,6 +324,7 @@ function pintarFicha(n) {
       <span class="etq">${n.grado} conexiones</span>
       ${n.source_file ? `<span class="etq mono">${esc(n.source_file)}${n.source_location ? ":" + esc(String(n.source_location).replace(/^L/, "")) : ""}</span>` : ""}
     </div>
+    ${n.resumen ? `<div class="bloque"><h3>Resumen</h3><p class="por-que">${esc(n.resumen)}</p></div>` : ""}
     ${n.rationale ? `<div class="bloque"><h3>Por qué</h3><p class="por-que">${esc(n.rationale)}</p></div>` : ""}
     ${hiper.length ? `<div class="bloque"><h3>Forma parte de</h3>${hiper.map(h => `<div class="etq" style="margin:0 0 6px">${esc(h.label)}</div>`).join("")}</div>` : ""}
     ${Object.entries(grupos).sort((a, b) => b[1].length - a[1].length).map(([rel, xs]) => `
